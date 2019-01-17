@@ -64,3 +64,33 @@ where email not in('A%');
 select *
 from Employees
 where last_name like '_ee%';
+
+-- *******
+-- 문제018
+-- 최저임금이 10000불 이상인 업무의 상세 내역을 표시한다
+-- *******
+SELECT *
+from jobs
+where min_salary >= 10000;
+
+-- *******************
+-- [문제19]
+-- 2002년부터 2005년까지 
+-- 가입한 직원의 이름과 가입 일자를 표시한다.
+-- *******************
+select first_name, hire_date
+from employees
+where hire_date 
+between to_date('2002/01/01') and to_date('2005/12/31')
+order by hire_date asc;
+
+-- *******************
+-- [문제020]
+-- IT Programmer 또는 Sales Man인 
+-- 직원의 이름, 입사일, 업무코드 표시.
+-- ******************* 
+select first_name 이름, HIRE_DATE 입사일, JOB_ID "업무코드"
+from employees
+where job_id like 'IT_PROG' or job_id like 'SA_MAN';
+
+
