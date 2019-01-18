@@ -5,7 +5,7 @@
 -- 직원의 이름을 오름차순으로 정렬하시오
 -- *******************
 SELECT 
-    E.FIRST_NAME, 
+    E.FIRST_NAME,
     E.HIRE_DATE, 
     J.JOB_ID, 
     J.JOB_TITLE
@@ -106,3 +106,55 @@ FROM EMP E
 GROUP BY E.DID, D.DNAME
     HAVING ROUND(AVG(E.SAL),2) >= 10000
     ;
+
+-- *******************
+-- [문제028]
+-- 올해 연봉에서 10% 인상된 급액이 내년 연봉으로
+-- 책정되었습니다. 내년 전사원의 내년급여를
+-- 출력하세요.
+-- 단, 연봉 = 급여 * 12 입니다
+-- *********************
+SELECT
+    EID 사번,
+    FNAME ||' '|| LNAME 이름,
+    SAL 올해급여,
+    SAL + SAL*0.1 내년급여
+FROM EMP;
+SELECT * FROM EMP;
+
+-- *******************
+-- [문제029]
+-- 부서별로 담당하는 관리자와 업무를 
+-- 한번씩만 출력하시오 (20행)
+-- *********************
+SELECT
+    D.DNAME 부서,
+    E.FNAME 관리자,
+    J.TITLE 업무
+FROM EMP E
+    JOIN DEP D
+        ON E.EID LIKE D.MID
+    JOIN JOB J
+        ON E.JID LIKE J.JID;
+
+
+-- *******************
+-- [문제030]
+-- 이번 분기에 IT부서(부서명: IT)에서는 신규 프로그램을 개발하고 
+-- 보급하여 회사에 공헌하였다. 
+-- 이에 해당 부서의 사원 급여를 12.3% 인상하여 지급합니다.
+-- 정수만(반올림) 표시하여 보고서를 작성하시오. 
+-- 보고서는 사원번호, 성과 이름(Name 으로 별칭), 
+-- 급여, 인상된 급여(Increased Salary 로 별칭)순으로 출력하시오
+-- 급액은 천원단위임
+-- *********************
+SELECT 
+    E.EID 사원번호,
+    E.FNAME ||' '|| E.LNAME "이름", 
+    TO_CHAR(ROUND(E.SAL + E.SAL*0.123),'l9,999,999') "인상된 급여"
+FROM EMP E
+WHERE E.DID LIKE
+(SELECT DID 
+FROM DEP
+WHERE DNAME LIKE 'IT');  
+ 
