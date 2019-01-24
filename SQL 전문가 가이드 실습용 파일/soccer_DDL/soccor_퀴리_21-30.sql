@@ -16,7 +16,15 @@ ORDER BY PLAYER_NAME;
 -- NVL(SUM(SAL),0) 으로 해야 자원낭비가 줄어든다
 -- 팀별 포지션별 인원수와 팀별 전체 인원수 출력
 -- Oracle, Simple Case Expr 
-
+SELECT 
+    TEAM_ID,
+    NVL(SUM(CASE POSITION WHEN 'FW' THEN 1 END),0) FW,
+    NVL(SUM(CASE POSITION WHEN 'MF' THEN 1 END),0) MF,
+    NVL(SUM(CASE POSITION WHEN 'DF' THEN 1 END),0) DF,
+    NVL(SUM(CASE POSITION WHEN 'GK' THEN 1 END),0) GK,
+    COUNT(*) SUM
+FROM PLAYER
+GROUP BY TEAM_ID;
 
 -- SOCCER_SQL_023
 -- GROUP BY 절 없이 전체 선수들의 포지션별 평균 키 및 전체 평균 키 출력
@@ -47,23 +55,120 @@ SELECT ROUND(AVG(HEIGHT),2)
 
 SELECT 
     P.TEAM_ID 팀아이디, 
-    T.TEAM_NAME 팀명,
+    (SELECT TEAM_NAME
+    FROM TEAM
+    WHERE TEAM_ID LIKE P.TEAM_ID) 팀명,
     P.PLAYER_NAME 선수, 
     P.POSITION 포지션, 
     P.BACK_NO 백넘버,
-    AVG(P.HEIGHT)
+    P.HEIGHT
 FROM PLAYER P
-    JOIN TEAM T
-    ON T.TEAM_ID LIKE P.TEAM_ID
-GROUP BY P.TEAM_ID, T.TEAM_NAME
+WHERE (TEAM_ID, HEIGHT) IN(SELECT TEAM_ID, MIN(HEIGHT) 
+                            FROM PLAYER
+                            GROUP BY TEAM_ID)
 ORDER BY P.TEAM_ID;
 
 -- SOCCER_SQL_025 
--- 선수 자신이 속한 팀의 평균 키보다 작은 선수들의 정보
+-- K-리그 2012년 8월 경기결과와 두 팀간의 점수차를 ABS 함수를 사용하여
+-- 절대값으로 출력하기
+SELECT 
+    SCHE_DATE, 
+   (SELECT T.TEAM_NAME
+   FROM TEAM T
+   WHERE T.TEAM_ID LIKE SCH.HOMETEAM_ID) ||'-'||
+   (SELECT T.TEAM_NAME
+   FROM TEAM T
+   WHERE T.TEAM_ID LIKE SCH.AWAYTEAM_ID) 팀들,
+    SCH.HOME_SCORE||'-'||SCH.AWAY_SCORE 점수,
+    ABS(SCH.HOME_SCORE-SCH.AWAY_SCORE) 점수차
+FROM (SELECT 
+        STADIUM_ID, 
+        SCHE_DATE, 
+        HOMETEAM_ID, 
+        AWAYTEAM_ID, 
+        HOME_SCORE, 
+        AWAY_SCORE
+     FROM SCHEDULE
+     WHERE SCHE_DATE LIKE '201208%'
+     ORDER BY SCHE_DATE) SCH
+    JOIN STADIUM S
+        ON SCH.STADIUM_ID LIKE S.STADIUM_ID
+    JOIN TEAM T
+        ON T.STADIUM_ID LIKE S.STADIUM_ID;
 
 -- SOCCER_SQL_026 
 -- 20120501 부터 20120602 사이에 경기가 있는 경기장 조회
+SELECT 
+    S.STADIUM_ID "스타디움 코드",
+    S.STADIUM_NAME 경기장,
+    SCH.SCHE_DATE 경기일정
+FROM STADIUM S
+    JOIN SCHEDULE SCH
+        ON S.STADIUM_ID LIKE SCH.STADIUM_ID
+WHERE SCH.SCHE_DATE BETWEEN '20120501' AND '20120602'
+ORDER BY SCH.SCHE_DATE;
 
 -- SOCCER_SQL_027 
--- 선수정보와 해당 선수가 속한  팀의 평균키 조회
+-- 선수정보와 해당 선수가 속한 팀의 평균키 조회
 -- 단, 정렬시 평균키 내림차순
+SELECT 
+    T.TEAM_NAME 팀명, 
+    P.PLAYER_NAME 선수명, 
+    P.HEIGHT 키, 
+    (SELECT ROUND(AVG(P1.HEIGHT))
+                FROM PLAYER P1
+                WHERE P1.TEAM_ID LIKE T.TEAM_ID) 평균키
+FROM PLAYER P
+    JOIN TEAM T
+    ON T.TEAM_ID LIKE P.TEAM_ID
+GROUP BY T.TEAM_ID, T.TEAM_NAME, P.PLAYER_NAME, P.HEIGHT
+ORDER BY 4 DESC;
+
+
+-- SOCCER_SQL_028 
+-- 평균키가 삼성 블루윙즈 팀의 평균키보다 작은 팀의 
+-- 이름과 해당 팀의 평균키
+SELECT 
+    T.TEAM_NAME 팀명,
+    P.TEAM_ID,
+    ROUND(AVG(P.HEIGHT),2) 평균키
+FROM PLAYER P
+    JOIN TEAM T
+        ON T.TEAM_ID LIKE P.TEAM_ID
+GROUP BY P.TEAM_ID, T.TEAM_NAME
+HAVING AVG(P.HEIGHT) < 
+    (SELECT AVG(P.HEIGHT)
+    FROM PLAYER P
+        JOIN TEAM T
+        ON T.TEAM_ID LIKE P.TEAM_ID
+    WHERE T.TEAM_NAME LIKE '삼성블루윙즈');
+
+-- SOCCER_SQL_029 
+-- 드래곤즈,FC서울,일화천마 각각의 팀 소속의 GK, MF 선수 정보
+SELECT 
+    T.TEAM_NAME 소속팀, 
+    P.POSITION 포지션, 
+    P.BACK_NO 백넘버, 
+    P.PLAYER_NAME 선수명, 
+    P.HEIGHT 키
+FROM PLAYER P
+    JOIN TEAM T
+    ON T.TEAM_ID LIKE P.TEAM_ID
+WHERE TEAM_NAME IN('드래곤즈','FC서울','일화천마')
+            AND P.POSITION IN('GK', 'MF')
+ORDER BY 1,2,3,4,5;
+
+-- SOCCER_SQL_030 
+-- 29번에서 제시한 팀과 포지션이 아닌 선수들의 수
+SELECT 
+    T.TEAM_NAME 소속팀, 
+    P.POSITION 포지션, 
+    P.BACK_NO 백넘버, 
+    P.PLAYER_NAME 선수명, 
+    P.HEIGHT 키
+FROM PLAYER P
+    JOIN TEAM T
+    ON T.TEAM_ID LIKE P.TEAM_ID
+WHERE TEAM_NAME NOT IN('드래곤즈','FC서울','일화천마')
+            AND P.POSITION NOT IN('GK', 'MF')
+ORDER BY T.TEAM_NAME;
