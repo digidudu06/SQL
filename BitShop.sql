@@ -1,109 +1,112 @@
-create table customers(
-customer_id varchar2(15) primary key,
-customer_name varchar2(15) not null,
-contact_name varchar2(15) unique,
-address varchar2(15) not null,
-city varchar2(15) not null,
-postal_code varchar2(15) not null,
-country varchar2(15) not null
+
+CREATE TABLE CUSTOMERS(
+CUSTOMER_ID VARCHAR2(15) PRIMARY KEY,
+CUSTOMER_NAME VARCHAR2(15) NOT NULL,
+CONTACT_NAME VARCHAR2(15) UNIQUE,
+ADDRESS VARCHAR2(15) NOT NULL,
+CITY VARCHAR2(15) NOT NULL,
+POSTAL_CODE VARCHAR2(15) NOT NULL,
+COUNTRY VARCHAR2(15) NOT NULL
 );
 
-create table employees(
-employee_id varchar2(15) primary key,
-last_name varchar2(15) not null,
-first_name varchar2(15) not null,
-birth_date varchar2(15),
-photo varchar2(15) not null,
-notes varchar2(15)
+CREATE TABLE EMPLOYEES(
+EMPLOYEE_ID VARCHAR2 (15) PRIMARY KEY,
+BIRTH_DATE  VARCHAR2 (15),
+PHOTO       VARCHAR2 (15) NOT NULL,
+NOTES       VARCHAR2 (15),
+NAME        VARCHAR2 (15) NOT NULL,
+MANAGER     VARCHAR2 (15)
 );
 
-create table shippers(
-shipper_id varchar2(15) primary key,
-shipper_name varchar2(15) not null,
-phone varchar2(15) not null
+
+CREATE TABLE SHIPPERS(
+SHIPPER_ID VARCHAR2(15) PRIMARY KEY,
+SHIPPER_NAME VARCHAR2(15) NOT NULL,
+PHONE VARCHAR2(15) NOT NULL
 );
 
-create table orders(
-order_id number primary key,
-customer_id varchar2(15) not null,
-employee_id varchar2(15) not null,
-order_date date default sysdate,
-shipper_id varchar2(15) not null,
-constraint orders_fk_customers foreign key(customer_id)
-references customers(customer_id),
-constraint orders_fk_employees foreign key(employee_id)
-references employees(employee_id),
-constraint orders_fk_shippers foreign key(shipper_id)
-references shippers(shipper_id)
-);
---------------------------------------------------------------------------------
-create table suppliers(
-supplier_id varchar2(15) primary key,
-supplier_name varchar2(15) not null,
-contact_name varchar2(15) unique,
-address varchar2(15) not null,
-city varchar2(15) not null,
-postal_code varchar2(15) not null,
-country varchar2(15) not null,
-phone varchar2(15) not null
-);
-
-create sequence category_id
-start with 1000
-increment by 1;
-
-create table categories(
-category_id number primary key,
-category_name varchar2(15) not null,
-description varchar2(15) not null
-);
-
-create sequence product_id
-start with 1000
-increment by 1;
-
-create table products(
-product_id number primary key,
-product_name varchar2(15) not null,
-supplier_id varchar2(15) not null,
-category_id number not null,
-unit varchar2(15),
-price number,
-constraint products_fk_suppliers foreign key(supplier_id) 
-references suppliers(supplier_id),
-constraint products_fk_categories foreign key(category_id) 
-references categories(category_id)
+CREATE TABLE ORDERS(
+ORDER_ID NUMBER PRIMARY KEY,
+CUSTOMER_ID VARCHAR2(15) NOT NULL,
+EMPLOYEE_ID VARCHAR2(15) NOT NULL,
+ORDER_DATE DATE DEFAULT SYSDATE,
+SHIPPER_ID VARCHAR2(15) NOT NULL,
+CONSTRAINT ORDERS_FK_CUSTOMERS FOREIGN KEY(CUSTOMER_ID)
+REFERENCES CUSTOMERS(CUSTOMER_ID),
+CONSTRAINT ORDERS_FK_EMPLOYEES FOREIGN KEY(EMPLOYEE_ID)
+REFERENCES EMPLOYEES(EMPLOYEE_ID),
+CONSTRAINT ORDERS_FK_SHIPPERS FOREIGN KEY(SHIPPER_ID)
+REFERENCES SHIPPERS(SHIPPER_ID)
 );
 --------------------------------------------------------------------------------
-create sequence order_detail_id
-start with 1000
-increment by 1;
+CREATE TABLE SUPPLIERS(
+SUPPLIER_ID VARCHAR2(15) PRIMARY KEY,
+SUPPLIER_NAME VARCHAR2(15) NOT NULL,
+CONTACT_NAME VARCHAR2(15) UNIQUE,
+ADDRESS VARCHAR2(15) NOT NULL,
+CITY VARCHAR2(15) NOT NULL,
+POSTAL_CODE VARCHAR2(15) NOT NULL,
+COUNTRY VARCHAR2(15) NOT NULL,
+PHONE VARCHAR2(15) NOT NULL
+);
 
-create table order_details(
-order_detail_id number primary key,
-order_id number not null,
-product_id number not null,
-quantity number,
-constraint order_details_fk_products foreign key(product_id)
-references products(product_id),
-constraint order_details_fk_orders foreign key(order_id)
-references orders(order_id)
+CREATE SEQUENCE CATEGORY_ID
+START WITH 1000
+INCREMENT BY 1;
+
+CREATE TABLE CATEGORIES(
+CATEGORY_ID NUMBER PRIMARY KEY,
+CATEGORY_NAME VARCHAR2(15) NOT NULL,
+DESCRIPTION VARCHAR2(15) NOT NULL
+);
+
+CREATE SEQUENCE PRODUCT_ID
+START WITH 1000
+INCREMENT BY 1;
+
+CREATE TABLE PRODUCTS(
+PRODUCT_ID NUMBER PRIMARY KEY,
+PRODUCT_NAME VARCHAR2(15) NOT NULL,
+SUPPLIER_ID VARCHAR2(15) NOT NULL,
+CATEGORY_ID NUMBER NOT NULL,
+UNIT VARCHAR2(15),
+PRICE NUMBER,
+CONSTRAINT PRODUCTS_FK_SUPPLIERS FOREIGN KEY(SUPPLIER_ID) 
+REFERENCES SUPPLIERS(SUPPLIER_ID),
+CONSTRAINT PRODUCTS_FK_CATEGORIES FOREIGN KEY(CATEGORY_ID) 
+REFERENCES CATEGORIES(CATEGORY_ID)
+);
+--------------------------------------------------------------------------------
+CREATE SEQUENCE ORDER_DETAIL_ID
+START WITH 1000
+INCREMENT BY 1;
+
+CREATE TABLE ORDER_DETAILS(
+ORDER_DETAIL_ID NUMBER PRIMARY KEY,
+ORDER_ID NUMBER NOT NULL,
+PRODUCT_ID NUMBER NOT NULL,
+QUANTITY NUMBER,
+CONSTRAINT ORDER_DETAILS_FK_PRODUCTS FOREIGN KEY(PRODUCT_ID)
+REFERENCES PRODUCTS(PRODUCT_ID),
+CONSTRAINT ORDER_DETAILS_FK_ORDERS FOREIGN KEY(ORDER_ID)
+REFERENCES ORDERS(ORDER_ID)
 );
 
 -- 실행
-select * from tab;
+SELECT * FROM TAB;
 
-drop table products;
+-- TEST
+DROP TABLE PRODUCTS;
 
-alter table Test
-add test2 varchar2(10);
+ALTER TABLE TEST
+ADD TEST2 VARCHAR2(10);
 
-alter table test
-drop column test2;
+ALTER TABLE TEST
+DROP COLUMN TEST2;
 
-alter table member
-add primary key(id);
+ALTER TABLE MEMBER
+ADD PRIMARY KEY(ID);
 
 
-insert into order_details(art_seq, title, content, regdate, id)
-values(art_seq.nextval,'지우보라','메롱',sysdate,'hong');
+INSERT INTO ORDER_DETAILS(ART_SEQ, TITLE, CONTENT, REGDATE, ID)
+VALUES(ART_SEQ.NEXTVAL,'지우보라','메롱',SYSDATE,'hong');
